@@ -168,52 +168,28 @@ export function ForecastContextBar({
         }}
       >
         <div className="flex items-center gap-4">
-          {/* Forecast Dimension */}
-          <div className="flex items-center gap-2">
-            <span
-              style={{
-                /* token: font-size-body-sm */
-                fontSize: '13px',
-                /* token: font-weight-medium */
-                fontWeight: 500,
-                /* token: color-text-subtle */
-                color: '#6B7280',
-              }}
-            >
-              Forecast Dimension:
-            </span>
-            <Select value={forecastLevel} onValueChange={(v) => onForecastLevelChange(v as ForecastLevel)}>
-              <SelectTrigger
-                className="border hover:border-[#9CA3AF]"
+          {/* Forecast Dimension Tabs */}
+          <div className="flex items-center gap-1 border rounded-lg p-1" style={{ backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }}>
+            {Object.entries(forecastLevelLabels).map(([value, label]) => (
+              <button
+                key={value}
+                onClick={() => onForecastLevelChange(value as ForecastLevel)}
                 style={{
-                  /* token: component-input-height-sm */
-                  height: '34px',
-                  /* token: color-border-default */
-                  borderColor: '#D1D5DB',
-                  /* token: border-radius-md */
-                  borderRadius: '6px',
-                  /* token: color-surface-default */
-                  background: '#FFFFFF',
-                  minWidth: '140px',
-                  padding: '8px 12px',
-                  /* token: font-size-body-md */
+                  padding: '6px 16px',
                   fontSize: '14px',
-                  /* token: font-weight-regular */
-                  fontWeight: 400,
-                  /* token: color-text-default */
-                  color: '#111827',
+                  fontWeight: 600,
+                  borderRadius: '6px',
+                  transition: 'all 0.2s',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: forecastLevel === value ? '#FFFFFF' : 'transparent',
+                  color: forecastLevel === value ? 'var(--hf-foreground-dark-neutral-neutral-dark)' : '#6B7280',
+                  boxShadow: forecastLevel === value ? '0 1px 2px rgba(0, 0, 0, 0.05)' : 'none',
                 }}
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(forecastLevelLabels).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                {label}
+              </button>
+            ))}
           </div>
 
           {/* Forecast Run */}
