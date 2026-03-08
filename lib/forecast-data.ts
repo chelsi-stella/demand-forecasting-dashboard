@@ -652,6 +652,48 @@ export const trailingActuals = [
   { week: 'HFW07', actual: 19100 },
 ]
 
+// Recipe and SKU Forecast Data (for dimension-aware overrides)
+export interface RecipeForecast {
+  recipeId: string
+  recipeName: string
+  swappedForecast: number
+  nonSwappedForecast: number
+  totalForecast: number
+  weekId: string
+}
+
+export interface SkuForecast {
+  skuId: string
+  skuDescription: string
+  market: string
+  currentForecast: number
+  weekId: string
+}
+
+// 8-10 mock recipes for HFW12
+export const mockRecipeForecasts: RecipeForecast[] = [
+  { recipeId: 'R-1042', recipeName: 'Lemon Herb Chicken Pasta', swappedForecast: 1240, nonSwappedForecast: 890, totalForecast: 2130, weekId: 'w2026-12' },
+  { recipeId: 'R-1043', recipeName: 'Smoky Beef Tacos', swappedForecast: 980, nonSwappedForecast: 650, totalForecast: 1630, weekId: 'w2026-12' },
+  { recipeId: 'R-1044', recipeName: 'Creamy Mushroom Risotto', swappedForecast: 760, nonSwappedForecast: 540, totalForecast: 1300, weekId: 'w2026-12' },
+  { recipeId: 'R-1045', recipeName: 'Teriyaki Salmon Bowl', swappedForecast: 1100, nonSwappedForecast: 720, totalForecast: 1820, weekId: 'w2026-12' },
+  { recipeId: 'R-1046', recipeName: 'BBQ Pulled Pork Burger', swappedForecast: 890, nonSwappedForecast: 610, totalForecast: 1500, weekId: 'w2026-12' },
+  { recipeId: 'R-1047', recipeName: 'Veggie Pad Thai', swappedForecast: 540, nonSwappedForecast: 380, totalForecast: 920, weekId: 'w2026-12' },
+  { recipeId: 'R-1048', recipeName: 'Greek Lamb Meatballs', swappedForecast: 670, nonSwappedForecast: 450, totalForecast: 1120, weekId: 'w2026-12' },
+  { recipeId: 'R-1049', recipeName: 'Butter Chicken Tikka', swappedForecast: 1350, nonSwappedForecast: 940, totalForecast: 2290, weekId: 'w2026-12' },
+]
+
+// 8-10 mock SKUs for HFW12
+export const mockSkuForecasts: SkuForecast[] = [
+  { skuId: 'SKU-88821', skuDescription: 'Chicken Breast 300g', market: 'DE', currentForecast: 4500, weekId: 'w2026-12' },
+  { skuId: 'SKU-88822', skuDescription: 'Chicken Breast 300g', market: 'AT', currentForecast: 1200, weekId: 'w2026-12' },
+  { skuId: 'SKU-92301', skuDescription: 'Salmon Fillet 200g', market: 'DE', currentForecast: 2800, weekId: 'w2026-12' },
+  { skuId: 'SKU-92302', skuDescription: 'Salmon Fillet 200g', market: 'CH', currentForecast: 680, weekId: 'w2026-12' },
+  { skuId: 'SKU-71144', skuDescription: 'Beef Mince 400g', market: 'DE', currentForecast: 3200, weekId: 'w2026-12' },
+  { skuId: 'SKU-71145', skuDescription: 'Beef Mince 400g', market: 'AT', currentForecast: 890, weekId: 'w2026-12' },
+  { skuId: 'SKU-65501', skuDescription: 'Pork Tenderloin 250g', market: 'DE', currentForecast: 1650, weekId: 'w2026-12' },
+  { skuId: 'SKU-55200', skuDescription: 'Mixed Vegetables 500g', market: 'DE', currentForecast: 5100, weekId: 'w2026-12' },
+]
+
 // Chart data transformation - includes trailing actuals for past-to-future context
 export function getChartData(weeks: ForecastWeek[], includeHistory = true, comparisonVersion?: ComparisonVersion | null) {
   // Add "Today" marker at CW08 boundary

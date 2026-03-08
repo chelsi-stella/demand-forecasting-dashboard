@@ -459,6 +459,7 @@ export default function DemandForecastingDashboard() {
       <EditForecastPanel
         week={editingWeek}
         open={editingWeek !== null}
+        forecastLevel={forecastLevel}
         onClose={() => setEditingWeek(null)}
         onSave={handleSaveOverride}
       />
