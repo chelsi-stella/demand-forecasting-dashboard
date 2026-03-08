@@ -62,6 +62,7 @@ interface ForecastTableProps {
   onEditWeek: (week: ForecastWeek) => void
   onSaveOverride: (weekId: string, overwriteValue: number, comment: string, reason: OverrideReason) => void
   onLockWeek: (weekId: string) => void
+  onAcceptForecast: (weekId: string) => void
   onExplainChange?: (week: ForecastWeek) => void
   forecastLevel: ForecastLevel
   comparisonVersion?: ComparisonVersion | null
@@ -203,7 +204,7 @@ function ConfidenceBar({ value }: { value: number }) {
   )
 }
 
-export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, onExplainChange, forecastLevel, comparisonVersion, comparisonLabel, highlightedWeekId, selectedWeekId, onSelectWeek }: ForecastTableProps) {
+export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, onAcceptForecast, onExplainChange, forecastLevel, comparisonVersion, comparisonLabel, highlightedWeekId, selectedWeekId, onSelectWeek }: ForecastTableProps) {
   const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
   const [editingWeekId, setEditingWeekId] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>('action_required')
@@ -891,6 +892,30 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
+                        {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="icon-sm"
+                                  onClick={() => onAcceptForecast(week.id)}
+                                  className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  style={{
+                                    /* token: --hf-foreground-positive-positive-dark */
+                                    backgroundColor: 'var(--hf-background-light-positive-positive-mid)',
+                                    color: 'var(--hf-foreground-positive-positive-dark)',
+                                    border: '1px solid var(--hf-stroke-positive-positive-mid)',
+                                  }}
+                                >
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">Accept forecast</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                         {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && (forecastLevel === 'box' || forecastLevel === 'recipe') && (
                           <TooltipProvider>
                             <Tooltip>
@@ -1100,15 +1125,32 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                                   View Change Drivers
                                 </Button>
                               )}
-                              {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && (forecastLevel === 'box' || forecastLevel === 'recipe') && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => startInlineEdit(week)}
-                                >
-                                  <Edit2 className="h-3.5 w-3.5 mr-1.5" />
-                                  Edit Operational Forecast
-                                </Button>
+                              {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => onAcceptForecast(week.id)}
+                                    style={{
+                                      /* token: --hf-foreground-positive-positive-dark */
+                                      backgroundColor: 'var(--hf-background-light-positive-positive-mid)',
+                                      color: 'var(--hf-foreground-positive-positive-dark)',
+                                      border: '1px solid var(--hf-stroke-positive-positive-mid)',
+                                    }}
+                                  >
+                                    <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                                    Accept Forecast
+                                  </Button>
+                                  {(forecastLevel === 'box' || forecastLevel === 'recipe') && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => startInlineEdit(week)}
+                                    >
+                                      <Edit2 className="h-3.5 w-3.5 mr-1.5" />
+                                      Edit Operational Forecast
+                                    </Button>
+                                  )}
+                                </>
                               )}
                             </div>
                           </>

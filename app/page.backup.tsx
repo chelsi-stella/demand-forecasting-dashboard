@@ -205,6 +205,30 @@ export default function DemandForecastingDashboard() {
     setSelectedWeekId(null)
   }
 
+  const handleAcceptForecast = (weekId: string) => {
+    const now = new Date().toISOString()
+    const week = weeks.find(w => w.id === weekId)
+    if (!week) return
+
+    setWeeks(prev => prev.map(w => {
+      if (w.id === weekId) {
+        return { ...w, approvalStatus: 'approved' as const }
+      }
+      return w
+    }))
+
+    setAuditEntries(prev => [{
+      id: `log-${Date.now()}`,
+      timestamp: now,
+      user: 'Maria Schmidt',
+      action: 'Accepted',
+      field: 'approval_status',
+      oldValue: week.approvalStatus,
+      newValue: 'approved',
+      weekId,
+    }, ...prev])
+  }
+
   const handleApprove = (comment: string, weekIds?: string[]) => {
     const now = new Date().toISOString()
     const idsToApprove = weekIds || filteredWeeks
@@ -353,11 +377,12 @@ export default function DemandForecastingDashboard() {
 
         {/* Target Week Forecast Details - Primary Action Section */}
         <section className="mb-6" ref={tableRef}>
-          <ForecastTable 
-            weeks={filteredWeeks} 
+          <ForecastTable
+            weeks={filteredWeeks}
             onEditWeek={handleEditWeek}
             onSaveOverride={handleSaveOverride}
             onLockWeek={handleLockWeek}
+            onAcceptForecast={handleAcceptForecast}
             onExplainChange={handleExplainChange}
             forecastLevel={forecastLevel}
             comparisonVersion={activeComparisonVersion}
