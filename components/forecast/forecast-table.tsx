@@ -277,19 +277,6 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
 
   const isAutoLocked = (week: ForecastWeek) => week.weekout <= 2
 
-  // Row status bar colour — gives a pre-attentive left-edge signal for each row's health
-  function getRowStatusColor(week: ForecastWeek): string {
-    if (isAutoLocked(week) || week.approvalStatus === 'locked') return 'var(--hf-border-dark-neutral-neutral-light, #bbb)'
-    if (week.validationStatus === 'error') return 'var(--hf-foreground-error-error-dark, #b30000)'
-    if (
-      week.validationStatus === 'warning' ||
-      (Math.abs(week.deltaPercent) > 5 && !week.isManualOverride)
-    )
-      return 'var(--hf-foreground-warning-warning-mid, #ef670a)'
-    if (week.approvalStatus === 'approved') return 'var(--hf-foreground-success-success-dark, #067a46)'
-    return 'var(--hf-border-dark-neutral-neutral-light, #bbb)' // draft / neutral
-  }
-
   // Sort weeks based on selected sort option
   const sortedWeeks = [...weeks].sort((a, b) => {
     if (sortBy === 'action_required') {
@@ -642,8 +629,6 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
         <Table>
           <TableHeader>
             <TableRow className="border-b bg-background hover:bg-background">
-              {/* Row status bar — 3px pre-attentive signal column */}
-              <TableHead className="w-[3px] p-0 border-r-0" />
               <TableHead className="w-10" />
               <TableHead className="font-semibold text-foreground">Target Week</TableHead>
               <TableHead className="font-semibold text-foreground">Week Phase</TableHead>
@@ -660,7 +645,7 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
           <TableBody>
             {filteredWeeks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={12} className="h-32 text-center">
+                <TableCell colSpan={11} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <Filter className="h-8 w-8 text-muted-foreground/50" />
                     <p
@@ -713,18 +698,6 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                       selectedWeekId === week.id && 'bg-primary/5 ring-1 ring-primary/20 ring-inset'
                     )}
                   >
-                    {/* Pre-attentive row status bar */}
-                    <TableCell className="p-0 w-[3px]">
-                      <div
-                        style={{
-                          width: '3px',
-                          height: '100%',
-                          minHeight: '40px',
-                          background: getRowStatusColor(week),
-                          borderRadius: '0 2px 2px 0',
-                        }}
-                      />
-                    </TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
@@ -927,7 +900,7 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                   </TableRow>
                   {isExpanded && (
                     <TableRow key={`${week.id}-details`} className="bg-muted/20 border-b">
-                      <TableCell colSpan={12} className="py-4">
+                      <TableCell colSpan={11} className="py-4">
                         {editingWeekId === week.id ? (
                           /* Inline Edit Form */
                           <div className="px-8 space-y-4">

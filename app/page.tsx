@@ -1,6 +1,14 @@
 'use client'
 
 import { useState, useMemo, useRef, useCallback } from 'react'
+import { Check, FileText, Lock, ShieldCheck, CheckCircle2 } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AppHeader } from '@/components/forecast/app-header'
@@ -14,9 +22,6 @@ import { ApprovalDialog } from '@/components/forecast/approval-dialog'
 import { AuditLog } from '@/components/forecast/audit-log'
 import { RiskSummary } from '@/components/forecast/risk-summary'
 import { ExplainChangeDialog } from '@/components/forecast/explain-change-dialog'
-// Phase 1 — new components
-import { AlertBanner } from '@/components/forecast/alert-banner'
-import { StickyActionBar } from '@/components/forecast/sticky-action-bar'
 import { 
   forecastVersions, 
   forecastWeeks as initialWeeks, 
@@ -262,8 +267,8 @@ export default function DemandForecastingDashboard() {
     <div className="min-h-screen bg-background flex flex-col">
       <AppHeader />
 
-      <main className="flex-1 overflow-auto pb-[64px]">
-        {/* ── Context Bar ── */}
+      <main className="flex-1 p-6 overflow-auto">
+        {/* Context Bar */}
         <ForecastContextBar
           currentStatus={currentVersion?.status || 'draft'}
           lastUpdated="Feb 19, 2026 at 8:30 AM"
@@ -282,14 +287,14 @@ export default function DemandForecastingDashboard() {
           currentWeekLabel={`HFW${9 + weekoutFilter - 1}`}
         />
 
-        <div className="p-6">
-          {/* ── Page Header (title + scope — CTAs moved to sticky bar) ── */}
-          <div className="mb-6">
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
             <h1
               style={{
-                fontFamily: 'var(--hf-font-headline)',
-                fontSize: 'var(--hf-headline-desktop-h4-size)',
-                lineHeight: 'var(--hf-headline-desktop-h4-line)',
+                fontFamily: 'var(--hf-font-body)',
+                fontSize: 'var(--hf-body-extra-large-size)',
+                lineHeight: 'var(--hf-body-extra-large-line)',
                 fontWeight: 'var(--hf-font-weight-bold)',
                 color: 'var(--hf-foreground-dark-neutral-neutral-dark)',
               }}
@@ -301,11 +306,11 @@ export default function DemandForecastingDashboard() {
                     fontFamily: 'var(--hf-font-body)',
                     fontSize: 'var(--hf-body-large-size)',
                     fontWeight: 'var(--hf-font-weight-regular)',
-                    color: 'var(--hf-foreground-dark-neutral-neutral-light)',
+                    color: '#6B7280',
                     marginLeft: '8px',
                   }}
                 >
-                  — {forecastLevelLabels[forecastLevel]}
+                  - {forecastLevelLabels[forecastLevel]}
                 </span>
               )}
             </h1>
@@ -315,146 +320,150 @@ export default function DemandForecastingDashboard() {
                 fontSize: 'var(--hf-body-small-size)',
                 lineHeight: 'var(--hf-body-small-line)',
                 fontWeight: 'var(--hf-font-weight-regular)',
-                color: 'var(--hf-foreground-dark-neutral-neutral-light)',
+                color: '#6B7280',
                 marginTop: '4px',
               }}
             >
-              Current HelloFresh Week: HFW08 &middot; Today: Feb 19, 2026 &middot; Scope: HFW09–HFW{8 + weekoutFilter} (Weekout 1–{weekoutFilter})
+              Current HelloFresh Week: HFW08 &middot; Today: Feb 19, 2026 &middot; Selected Scope: HFW09–HFW{8 + weekoutFilter} (Weekout 1–{weekoutFilter})
             </p>
           </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Export Report
+            </Button>
+            {selectedWeekId && (() => {
+              const sw = weeks.find(w => w.id === selectedWeekId)
+              return sw && sw.approvalStatus !== 'locked' && sw.weekout > 2
+            })() && (
+              <Button
+                variant="outline"
+                className="gap-2 border-primary text-primary hover:bg-primary/10"
+                onClick={() => handleLockWeek(selectedWeekId!)}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Mark {weeks.find(w => w.id === selectedWeekId)?.weekLabel} as Good to Go
+              </Button>
+            )}
+            <Button onClick={() => setShowApprovalDialog(true)} className="gap-2">
+              <Check className="h-4 w-4" />
+              Review & Approve
+            </Button>
+          </div>
+        </div>
 
-          {/* ── US Add-ons regionalization note ── */}
-          {forecastLevel === 'addons' && selectedMarket === 'us' && (
-            <Card className="mb-4 border-primary/20 bg-primary/5">
-              <CardContent className="pt-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-1.5 rounded-md bg-primary/10 shrink-0">
-                    <svg className="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                  </div>
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: 'var(--hf-font-body)',
-                        fontSize: 'var(--hf-body-small-size)',
-                        lineHeight: 'var(--hf-body-small-line)',
-                        fontWeight: 'var(--hf-font-weight-semibold)',
-                        color: 'var(--hf-foreground-dark-neutral-neutral-dark)',
-                      }}
-                    >
-                      US Market: Regional Segmentation
-                    </div>
-                    <p
-                      style={{
-                        fontFamily: 'var(--hf-font-body)',
-                        fontSize: 'var(--hf-body-extra-small-size)',
-                        lineHeight: 'var(--hf-body-extra-small-line)',
-                        fontWeight: 'var(--hf-font-weight-regular)',
-                        color: 'var(--hf-foreground-dark-neutral-neutral-light)',
-                        marginTop: '4px',
-                      }}
-                    >
-                      Add-ons forecast for the US market can be segmented by regulated and non-regulated regions.
-                      Use the Regulation filter above to toggle between All, Regulated, and Non-regulated volumes.
-                      <Badge variant="outline" className="ml-2 text-[10px] py-0 px-1.5">Coming Soon</Badge>
-                    </p>
-                  </div>
+        {/* US Add-ons Regionalization Note */}
+        {forecastLevel === 'addons' && selectedMarket === 'us' && (
+          <Card className="mb-4 border-primary/20 bg-primary/5">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-md bg-primary/10 shrink-0">
+                  <svg className="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+                <div>
+                  <div
+                    style={{
+                      fontFamily: 'var(--hf-font-body)',
+                      fontSize: 'var(--hf-body-small-size)',
+                      lineHeight: 'var(--hf-body-small-line)',
+                      fontWeight: 'var(--hf-font-weight-semibold)',
+                      color: 'var(--hf-foreground-dark-neutral-neutral-dark)',
+                    }}
+                  >
+                    US Market: Regional Segmentation
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: 'var(--hf-font-body)',
+                      fontSize: 'var(--hf-body-extra-small-size)',
+                      lineHeight: 'var(--hf-body-extra-small-line)',
+                      fontWeight: 'var(--hf-font-weight-regular)',
+                      color: '#6B7280',
+                      marginTop: '4px',
+                    }}
+                  >
+                    Add-ons forecast for the US market can be segmented by regulated and non-regulated regions.
+                    Use the Regulation filter above to toggle between All, Regulated, and Non-regulated volumes.
+                    <Badge variant="outline" className="ml-2 text-[10px] py-0 px-1.5">Coming Soon</Badge>
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* ── 1. KPI Cards ── */}
-          <section className="mb-6">
-            <KPICards
-              kpis={kpis}
-              comparisonDelta={comparisonDelta}
-              forecastLevel={forecastLevel}
-              dimensionKPIs={dimensionKPIs}
-              selectedMarket={selectedMarket}
-            />
-          </section>
+        {/* KPI Cards */}
+        <section className="mb-8">
+          <KPICards
+            kpis={kpis}
+            comparisonDelta={comparisonDelta}
+            forecastLevel={forecastLevel}
+            dimensionKPIs={dimensionKPIs}
+            selectedMarket={selectedMarket}
+          />
+        </section>
 
-          {/* ── 2. Alert Banner — surfaced immediately after KPIs ── */}
-          <AlertBanner
+        {/* Target Week Forecast Details - Primary Action Section */}
+        <section className="mb-8" ref={tableRef}>
+          <ForecastTable
+            weeks={filteredWeeks}
+            onEditWeek={handleEditWeek}
+            onSaveOverride={handleSaveOverride}
+            onLockWeek={handleLockWeek}
+            onExplainChange={handleExplainChange}
+            forecastLevel={forecastLevel}
+            comparisonVersion={activeComparisonVersion}
+            comparisonLabel={comparisonLabel}
+            highlightedWeekId={highlightedWeekId}
+            selectedWeekId={selectedWeekId}
+            onSelectWeek={setSelectedWeekId}
+          />
+        </section>
+
+        {/* Weekly Forecast Trend */}
+        <section className="mb-8">
+          <ForecastChart
+            data={chartData}
+            forecastLevel={forecastLevel}
+            comparisonLabel={comparisonLabel}
+            selectedVersionDay={selectedVersionDay}
+            comparisonVersionDay={comparisonVersionDay}
+            onComparisonVersionDayChange={setComparisonVersionDay}
+          />
+        </section>
+
+        {/* Plan Risk Summary */}
+        <section className="mb-8">
+          <RiskSummary
             risks={risks}
             weeks={filteredWeeks}
-            onNavigateToWeek={handleInvestigateWeek}
+            onNavigateToWeek={(weekId) => {
+              handleInvestigateWeek(weekId)
+            }}
             significantChanges={significantChanges}
             comparisonLabel={comparisonLabel}
           />
+        </section>
 
-          {/* ── 3. Trend Chart — provides narrative context before the table ── */}
-          <section className="mb-8">
-            <ForecastChart
-              data={chartData}
-              forecastLevel={forecastLevel}
-              comparisonLabel={comparisonLabel}
-              selectedVersionDay={selectedVersionDay}
-              comparisonVersionDay={comparisonVersionDay}
-              onComparisonVersionDayChange={setComparisonVersionDay}
-            />
-          </section>
+        {/* Alert Center */}
+        <section className="mb-8">
+          <ValidationPanel
+            weeks={filteredWeeks}
+            onExplainChange={(week) => {
+              handleInvestigateWeek(week.id)
+              handleExplainChange(week)
+            }}
+            significantChanges={significantChanges}
+            comparisonLabel={comparisonLabel}
+            forecastLevel={forecastLevel}
+          />
+        </section>
 
-          {/* ── 4. Forecast Table — primary data action section ── */}
-          <section className="mb-8" ref={tableRef}>
-            <ForecastTable
-              weeks={filteredWeeks}
-              onEditWeek={handleEditWeek}
-              onSaveOverride={handleSaveOverride}
-              onLockWeek={handleLockWeek}
-              onExplainChange={handleExplainChange}
-              forecastLevel={forecastLevel}
-              comparisonVersion={activeComparisonVersion}
-              comparisonLabel={comparisonLabel}
-              highlightedWeekId={highlightedWeekId}
-              selectedWeekId={selectedWeekId}
-              onSelectWeek={setSelectedWeekId}
-            />
-          </section>
-
-          {/* ── 5. Plan Risk Summary — detailed risk list below table ── */}
-          <section className="mb-8">
-            <RiskSummary
-              risks={risks}
-              weeks={filteredWeeks}
-              onNavigateToWeek={handleInvestigateWeek}
-              significantChanges={significantChanges}
-              comparisonLabel={comparisonLabel}
-            />
-          </section>
-
-          {/* ── 6. Validation / Alert Centre ── */}
-          <section className="mb-8">
-            <ValidationPanel
-              weeks={filteredWeeks}
-              onExplainChange={(week) => {
-                handleInvestigateWeek(week.id)
-                handleExplainChange(week)
-              }}
-              significantChanges={significantChanges}
-              comparisonLabel={comparisonLabel}
-              forecastLevel={forecastLevel}
-            />
-          </section>
-
-          {/* ── 7. Audit Log ── */}
-          <section className="mb-6">
-            <AuditLog entries={auditEntries} />
-          </section>
-        </div>
+        {/* Recent Activity */}
+        <section className="mb-6">
+          <AuditLog entries={auditEntries} />
+        </section>
       </main>
-
-      {/* ── Sticky Action Bar — always in reach ── */}
-      <StickyActionBar
-        filteredWeeks={filteredWeeks}
-        selectedWeekId={selectedWeekId}
-        onLockWeek={handleLockWeek}
-        onOpenApproval={() => setShowApprovalDialog(true)}
-        onExport={() => {
-          // Export handler — placeholder for real export logic
-          console.log('Export triggered')
-        }}
-      />
 
       <EditForecastPanel
         week={editingWeek}
