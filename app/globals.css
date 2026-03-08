@@ -1,0 +1,369 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ===================================
+     HelloFresh Enterprise Design System
+     Complete Color Token Library
+     ================================ === */
+
+  /* Background - Complimentary */
+  --hf-background-complimentary-brown-dark: #75451a;
+  --hf-background-complimentary-brown-light: #f5e4b5;
+  --hf-background-complimentary-brown-mid: #f2db9c;
+  --hf-background-complimentary-mint-dark: #09766a;
+  --hf-background-complimentary-mint-light: #cbf5e6;
+  --hf-background-complimentary-mint-mid: #a5eed4;
+  --hf-background-complimentary-pink-dark: #841484;
+  --hf-background-complimentary-pink-light: #efd1e0;
+  --hf-background-complimentary-pink-mid: #f4b1d2;
+
+  /* Background - Dark Negative */
+  --hf-background-dark-negative-negative-dark: #7c0000;
+  --hf-background-dark-negative-negative-light: #b30000;
+  --hf-background-dark-negative-negative-mid: #970000;
+
+  /* Background - Dark Neutral */
+  --hf-background-dark-neutral-neutral-dark: #4b4b4b;
+  --hf-background-dark-neutral-neutral-darker: #242424;
+  --hf-background-dark-neutral-neutral-light: #bbb;
+  --hf-background-dark-neutral-neutral-mid: #676767;
+
+  /* Background - Dark Positive */
+  --hf-background-dark-positive-positive-dark: #056835;
+  --hf-background-dark-positive-positive-darker: #035624;
+  --hf-background-dark-positive-positive-light: #00a846;
+  --hf-background-dark-positive-positive-mid: #067a46;
+
+  /* Background - Information */
+  --hf-background-information-information-dark: #92eaff;
+  --hf-background-information-information-light: #e9faff;
+  --hf-background-information-information-mid: #d3f6ff;
+
+  /* Background - Light Negative */
+  --hf-background-light-negative-negative-dark: #fcad9a;
+  --hf-background-light-negative-negative-light: #ffeae9;
+  --hf-background-light-negative-negative-mid: #ffccca;
+
+  /* Background - Light Neutral */
+  --hf-background-light-neutral-neutral-dark: #eee;
+  --hf-background-light-neutral-neutral-darker: #e4e4e4;
+  --hf-background-light-neutral-neutral-mid: #f8f8f8;
+
+  /* Background - Light Positive */
+  --hf-background-light-positive-positive-dark: #d2f895;
+  --hf-background-light-positive-positive-darker: #96dc14;
+  --hf-background-light-positive-positive-light: #f6fde9;
+  --hf-background-light-positive-positive-mid: #e4fabf;
+
+  /* Background - Reward */
+  --hf-background-reward-reward-dark: #fff583;
+  --hf-background-reward-reward-light: #fffcd3;
+  --hf-background-reward-reward-mid: #fffab2;
+
+  /* Background - Warning */
+  --hf-background-warning-warning-dark: #ffbf74;
+  --hf-background-warning-warning-light: #ffecd3;
+  --hf-background-warning-warning-mid: #ffdbac;
+
+  /* Foreground - Complimentary */
+  --hf-foreground-complimentary-brown-dark: #5d3714;
+  --hf-foreground-complimentary-brown-light: #f2db9c;
+  --hf-foreground-complimentary-brown-mid: #bc8b42;
+  --hf-foreground-complimentary-mint-dark: #09766a;
+  --hf-foreground-complimentary-mint-light: #a5eed4;
+  --hf-foreground-complimentary-mint-mid: #0ec87b;
+  --hf-foreground-complimentary-pink-dark: #691069;
+  --hf-foreground-complimentary-pink-light: #f4b1d2;
+  --hf-foreground-complimentary-pink-mid: #c6278c;
+
+  /* Foreground - Dark Neutral */
+  --hf-foreground-dark-neutral-neutral-dark: #242424;
+  --hf-foreground-dark-neutral-neutral-light: #676767;
+  --hf-foreground-dark-neutral-neutral-lighter: #bbb;
+  --hf-foreground-dark-neutral-neutral-mid: #4b4b4b;
+
+  /* Foreground - Information */
+  --hf-foreground-information-information-dark: #001db2;
+  --hf-foreground-information-information-light: #92eaff;
+  --hf-foreground-information-information-mid: #002aff;
+
+  /* Foreground - Light Neutral */
+  --hf-foreground-light-neutral-neutral-dark: #eee;
+  --hf-foreground-light-neutral-neutral-light: #ffffff;
+  --hf-foreground-light-neutral-neutral-mid: #f8f8f8;
+
+  /* Foreground - Negative */
+  --hf-foreground-negative-negative-dark: #b30000;
+  --hf-foreground-negative-negative-light: #fcad9a;
+  --hf-foreground-negative-negative-mid: #db1d1d;
+
+  /* Foreground - Positive */
+  --hf-foreground-positive-positive-dark: #067a46;
+  --hf-foreground-positive-positive-light: #d2f895;
+
+  /* Foreground - Reward */
+  --hf-foreground-reward-reward-dark: #c6ae00;
+  --hf-foreground-reward-reward-light: #fff583;
+  --hf-foreground-reward-reward-mid: #e2c700;
+
+  /* Foreground - Warning */
+  --hf-foreground-warning-warning-dark: #ce4500;
+  --hf-foreground-warning-warning-light: #ffbf74;
+  --hf-foreground-warning-warning-mid: #ef670a;
+
+  /* Stroke - Complimentary */
+  --hf-stroke-complimentary-brown-dark: #5d3714;
+  --hf-stroke-complimentary-brown-light: #f2db9c;
+  --hf-stroke-complimentary-brown-mid: #bc8b42;
+  --hf-stroke-complimentary-mint-dark: #006060;
+  --hf-stroke-complimentary-mint-light: #a5eed4;
+  --hf-stroke-complimentary-mint-mid: #0ec87b;
+  --hf-stroke-complimentary-pink-dark: #691069;
+  --hf-stroke-complimentary-pink-light: #f4b1d2;
+  --hf-stroke-complimentary-pink-mid: #c6278c;
+
+  /* Stroke - Information */
+  --hf-stroke-information-information-dark: #001db2;
+  --hf-stroke-information-information-light: #92eaff;
+  --hf-stroke-information-information-mid: #002aff;
+
+  /* Stroke - Negative */
+  --hf-stroke-negative-negative-dark: #970000;
+  --hf-stroke-negative-negative-light: #db1d1d;
+  --hf-stroke-negative-negative-mid: #b30000;
+
+  /* Stroke - Neutral */
+  --hf-stroke-neutral-neutral-dark: #bbb;
+  --hf-stroke-neutral-neutral-darker: #4b4b4b;
+  --hf-stroke-neutral-neutral-light: #eee;
+  --hf-stroke-neutral-neutral-mid: #e4e4e4;
+
+  /* Stroke - Positive */
+  --hf-stroke-positive-positive-dark: #056835;
+  --hf-stroke-positive-positive-light: #00a846;
+  --hf-stroke-positive-positive-lighter: #d2f895;
+  --hf-stroke-positive-positive-mid: #067a46;
+
+  /* Stroke - Reward */
+  --hf-stroke-reward-reward-dark: #c6ae00;
+  --hf-stroke-reward-reward-light: #fff583;
+  --hf-stroke-reward-reward-mid: #e2c700;
+
+  /* Stroke - Warning */
+  --hf-stroke-warning-warning-dark: #ce4500;
+  --hf-stroke-warning-warning-light: #ffbf74;
+  --hf-stroke-warning-warning-mid: #ef670a;
+
+  /* Corner Radius */
+  --hf-radius: 4px;
+
+  /* ===================================
+     Typography Tokens
+     ================================ === */
+
+  /* Font Families */
+  --hf-font-headline: 'Agrandir Digital', 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+  --hf-font-body: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+
+  /* Font Weights */
+  --hf-font-weight-regular: 400;
+  --hf-font-weight-medium: 500;
+  --hf-font-weight-semibold: 600;
+  --hf-font-weight-bold: 700;
+
+  /* Desktop Headlines */
+  --hf-headline-desktop-grandiose-size: 56px;
+  --hf-headline-desktop-grandiose-line: 72px;
+  --hf-headline-desktop-h1-size: 48px;
+  --hf-headline-desktop-h1-line: 60px;
+  --hf-headline-desktop-h2-size: 32px;
+  --hf-headline-desktop-h2-line: 40px;
+  --hf-headline-desktop-h3-size: 24px;
+  --hf-headline-desktop-h3-line: 32px;
+  --hf-headline-desktop-h4-size: 20px;
+  --hf-headline-desktop-h4-line: 28px;
+  --hf-headline-desktop-h5-size: 16px;
+  --hf-headline-desktop-h5-line: 20px;
+
+  /* Mobile & Tablet Headlines */
+  --hf-headline-mobile-grandiose-size: 48px;
+  --hf-headline-mobile-grandiose-line: 60px;
+  --hf-headline-mobile-h1-size: 32px;
+  --hf-headline-mobile-h1-line: 40px;
+  --hf-headline-mobile-h2-size: 24px;
+  --hf-headline-mobile-h2-line: 32px;
+  --hf-headline-mobile-h3-size: 20px;
+  --hf-headline-mobile-h3-line: 28px;
+  --hf-headline-mobile-h4-size: 16px;
+  --hf-headline-mobile-h4-line: 20px;
+
+  /* Body Typography */
+  --hf-body-extra-large-size: 24px;
+  --hf-body-extra-large-line: 32px;
+  --hf-body-large-size: 20px;
+  --hf-body-large-line: 28px;
+  --hf-body-medium-size: 16px;
+  --hf-body-medium-line: 24px;
+  --hf-body-small-size: 14px;
+  --hf-body-small-line: 20px;
+  --hf-body-extra-small-size: 12px;
+  --hf-body-extra-small-line: 16px;
+
+  /* Letter Spacing */
+  --hf-letter-spacing: 0;
+
+  /* ===================================
+     Shadcn/UI Theme Variables
+     Mapped to HelloFresh Design System
+     =================================== */
+
+  --background: #F8F8F8;
+  --foreground: var(--hf-foreground-dark-neutral-neutral-dark);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--hf-foreground-dark-neutral-neutral-dark);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--hf-foreground-dark-neutral-neutral-dark);
+  --primary: var(--hf-foreground-positive-positive-dark);
+  --primary-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --secondary: #00A846;
+  --secondary-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: var(--hf-background-light-positive-positive-dark);
+  --accent-foreground: var(--hf-foreground-dark-neutral-neutral-dark);
+  --destructive: var(--hf-foreground-negative-negative-dark);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: var(--hf-background-light-positive-positive-dark);
+  --chart-2: var(--hf-background-light-positive-positive-mid);
+  --chart-3: var(--hf-background-light-positive-positive-dark);
+  --chart-4: var(--hf-background-light-positive-positive-dark);
+  --chart-5: var(--hf-background-light-positive-positive-dark);
+  --radius: var(--hf-radius);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: var(--hf-foreground-dark-neutral-neutral-dark);
+  --sidebar-primary: var(--hf-foreground-dark-neutral-neutral-dark);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: var(--hf-background-light-positive-positive-dark);
+  --sidebar-accent-foreground: var(--hf-foreground-dark-neutral-neutral-dark);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --shadow-x: 0px;
+  --shadow-y: 1px;
+  --shadow-blur: 2px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 1;
+  --shadow-color: #ffffff;
+}
+
+.dark {
+  --background: var(--hf-background-dark-neutral-neutral-darker);
+  --foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --card: var(--hf-background-dark-neutral-neutral-dark);
+  --card-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --popover: var(--hf-background-dark-neutral-neutral-mid);
+  --popover-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --primary: var(--hf-background-dark-positive-positive-mid);
+  --primary-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --secondary: var(--hf-background-dark-neutral-neutral-mid);
+  --secondary-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --muted: var(--hf-background-dark-neutral-neutral-mid);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: var(--hf-background-dark-positive-positive-dark);
+  --accent-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --destructive: var(--hf-background-dark-negative-negative-mid);
+  --destructive-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: var(--hf-background-light-positive-positive-dark);
+  --chart-2: var(--hf-background-light-positive-positive-mid);
+  --chart-3: var(--hf-stroke-positive-positive-lighter);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: var(--hf-background-dark-neutral-neutral-darker);
+  --sidebar-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --sidebar-primary: var(--hf-background-dark-positive-positive-mid);
+  --sidebar-primary-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --sidebar-accent: var(--hf-background-dark-neutral-neutral-mid);
+  --sidebar-accent-foreground: var(--hf-foreground-light-neutral-neutral-light);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.439 0 0);
+  --shadow-x: 0px;
+  --shadow-y: 1px;
+  --shadow-blur: 2px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.05;
+  --shadow-color: #000000;
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-serif: 'Geist', 'Geist Fallback';
+  /* computed shadow variables below - do not modify */
+  --shadow-2xs: var(--shadow-x) var(--shadow-y) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-xs: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-sm: var(--shadow-x) var(--shadow-y) calc(var(--shadow-blur) * 1.5) var(--shadow-spread) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-md: calc(var(--shadow-x) * 2) calc(var(--shadow-y) * 2) calc(var(--shadow-blur) * 3) calc(var(--shadow-spread) - 1px) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-lg: calc(var(--shadow-x) * 4) calc(var(--shadow-y) * 4) calc(var(--shadow-blur) * 5) calc(var(--shadow-spread) - 3px) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-xl: calc(var(--shadow-x) * 6) calc(var(--shadow-y) * 6) calc(var(--shadow-blur) * 7) calc(var(--shadow-spread) - 5px) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-2xl: calc(var(--shadow-x) * 8) calc(var(--shadow-y) * 8) calc(max(0px, var(--shadow-blur) * 9 - 8px)) calc(var(--shadow-spread) - 12px) color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 250%), transparent);
+  --shadow: var(--shadow-md);
+  --color-shadow-color: var(--shadow-color);
+  --shadow-opacity: var(--shadow-opacity);
+  --shadow-spread: var(--shadow-spread);
+  --shadow-blur: var(--shadow-blur);
+  --shadow-y: var(--shadow-y);
+  --shadow-x: var(--shadow-x);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
