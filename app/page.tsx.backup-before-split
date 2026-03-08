@@ -421,25 +421,9 @@ export default function DemandForecastingDashboard() {
               onComparisonVersionDayChange={setComparisonVersionDay}
             />
           </section>
-        </div>
-      </div>
 
-      {/* ── 3. Alert Banner — above split panel ── */}
-      <div className="px-6 mb-4">
-        <AlertBanner
-          risks={risks}
-          weeks={filteredWeeks}
-          onNavigateToWeek={handleInvestigateWeek}
-          significantChanges={significantChanges}
-          comparisonLabel={comparisonLabel}
-        />
-      </div>
-
-      {/* ── 4. Split Panel Container ── */}
-      <div className="flex-1 flex overflow-hidden min-h-0">
-        {/* Left Panel: Forecast Table */}
-        <div className="flex-1 overflow-y-auto" ref={tableRef}>
-          <div className="px-6">
+          {/* ── 4. Forecast Table — primary data action section ── */}
+          <section className="mb-8" ref={tableRef}>
             <ForecastTable
               weeks={filteredWeeks}
               onEditWeek={handleEditWeek}
@@ -454,28 +438,39 @@ export default function DemandForecastingDashboard() {
               selectedWeekId={selectedWeekId}
               onSelectWeek={setSelectedWeekId}
             />
-          </div>
-        </div>
+          </section>
 
-        {/* Right Panel: Forecast Detail Panel */}
-        <ForecastDetailPanel
-          week={selectedWeekId ? filteredWeeks.find(w => w.id === selectedWeekId) || null : null}
-          forecastLevel={forecastLevel}
-          onClose={() => setSelectedWeekId(null)}
-          onEdit={() => {
-            const week = filteredWeeks.find(w => w.id === selectedWeekId)
-            if (week) handleEditWeek(week)
-          }}
-          onAccept={() => {
-            if (selectedWeekId) handleAcceptForecast(selectedWeekId)
-          }}
-          onExplainChange={() => {
-            const week = filteredWeeks.find(w => w.id === selectedWeekId)
-            if (week) handleExplainChange(week)
-          }}
-        />
-      </div>
-    </main>
+          {/* ── 5. Plan Risk Summary — detailed risk list below table ── */}
+          <section className="mb-8">
+            <RiskSummary
+              risks={risks}
+              weeks={filteredWeeks}
+              onNavigateToWeek={handleInvestigateWeek}
+              significantChanges={significantChanges}
+              comparisonLabel={comparisonLabel}
+            />
+          </section>
+
+          {/* ── 6. Validation / Alert Centre ── */}
+          <section className="mb-8">
+            <ValidationPanel
+              weeks={filteredWeeks}
+              onExplainChange={(week) => {
+                handleInvestigateWeek(week.id)
+                handleExplainChange(week)
+              }}
+              significantChanges={significantChanges}
+              comparisonLabel={comparisonLabel}
+              forecastLevel={forecastLevel}
+            />
+          </section>
+
+          {/* ── 7. Audit Log ── */}
+          <section className="mb-6">
+            <AuditLog entries={auditEntries} />
+          </section>
+        </div>
+      </main>
 
       {/* ── Sticky Action Bar — always in reach ── */}
       <StickyActionBar
