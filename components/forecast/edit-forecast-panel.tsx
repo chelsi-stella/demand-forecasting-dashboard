@@ -600,18 +600,37 @@ export function EditForecastPanel({ week, open, forecastLevel, onClose, onSave }
               </div>
             </div>
 
-            {/* Confidence */}
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="text-xs text-muted-foreground font-medium">Confidence</div>
-              <div className="flex items-center gap-2">
-                <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${week.confidence >= 80 ? 'bg-primary' : week.confidence >= 60 ? 'bg-amber-500' : 'bg-destructive'}`}
-                    style={{ width: `${week.confidence}%` }}
-                  />
-                </div>
+            {/* Confidence - degrades by weeks-out */}
+            <div className="p-3 border rounded-lg space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-muted-foreground font-medium">Confidence</div>
                 <span className="text-xs font-semibold">{week.confidence}%</span>
               </div>
+              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${week.confidence}%`,
+                    backgroundColor:
+                      week.weekout <= 2
+                        ? 'var(--hf-foreground-positive-positive-dark)'
+                        : week.weekout <= 5
+                        ? 'var(--hf-foreground-warning-warning-mid)'
+                        : week.weekout <= 12
+                        ? 'var(--hf-stroke-neutral-neutral-mid)'
+                        : 'var(--hf-foreground-negative-negative-dark)',
+                  }}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                {week.weekout <= 2
+                  ? 'High confidence — live week data available'
+                  : week.weekout <= 5
+                  ? 'Medium confidence — subscription data available'
+                  : week.weekout <= 12
+                  ? 'Lower confidence — seasonality modelling only'
+                  : 'Forecast accuracy degrades beyond 12 weeks'}
+              </p>
             </div>
 
             <p className="text-[11px] text-muted-foreground italic">
