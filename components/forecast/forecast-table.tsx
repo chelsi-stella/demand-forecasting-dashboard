@@ -644,21 +644,6 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
               </SelectContent>
             </Select>
           </div>
-          {/* Legend */}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-primary" />
-              Valid
-            </span>
-            <span className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-amber-500" />
-              Warning
-            </span>
-            <span className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-destructive" />
-              Error
-            </span>
-          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">
