@@ -39,8 +39,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import type { ForecastWeek, ValidationStatus, ApprovalStatus, WeekPhase, ForecastLevel, ComparisonVersion, OverrideReason } from '@/lib/forecast-data'
-import { overrideReasonLabels, forecastLevelUnits } from '@/lib/forecast-data'
+import type { ForecastWeek, ValidationStatus, ApprovalStatus, WeekPhase, ForecastLevel, ComparisonVersion, OverrideReason, RecipeData, SkuData } from '@/lib/forecast-data'
+import { overrideReasonLabels, forecastLevelUnits, mockRecipeData, mockSkuData } from '@/lib/forecast-data'
+import { RecipeOverrideSheet } from './recipe-override-sheet'
+import { SkuOverrideSheet } from './sku-override-sheet'
 
 type SortOption = 'action_required' | 'target_week'
 
@@ -213,6 +215,9 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
   const [editError, setEditError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [validationFilter, setValidationFilter] = useState<ValidationStatus[]>([])
+  const [recipeSheetOpen, setRecipeSheetOpen] = useState(false)
+  const [skuSheetOpen, setSkuSheetOpen] = useState(false)
+  const [selectedSheetWeek, setSelectedSheetWeek] = useState<ForecastWeek | null>(null)
   const unit = forecastLevelUnits[forecastLevel]
 
   // Calculate counts for each validation status
@@ -273,6 +278,37 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
     }
     onSaveOverride(weekId, Number(editValue), editComment.trim(), editReason as OverrideReason)
     cancelInlineEdit()
+  }
+
+  const openRecipeSheet = (week: ForecastWeek) => {
+    setSelectedSheetWeek(week)
+    setRecipeSheetOpen(true)
+  }
+
+  const openSkuSheet = (week: ForecastWeek) => {
+    setSelectedSheetWeek(week)
+    setSkuSheetOpen(true)
+  }
+
+  const handleRecipeSave = (recipeId: string, swapped: number, nonSwapped: number, swappedReason: string, nonSwappedReason: string, totalReason: string) => {
+    if (!selectedSheetWeek) return
+    // TODO: In production, this should save recipe-level overrides
+    // For now, we'll update the week's aggregate forecast with the calculated total
+    const total = swapped + nonSwapped
+    const comment = `Recipe Override - ${recipeId}\nSwapped: ${swappedReason}\nNon-Swapped: ${nonSwappedReason}\nTotal: ${totalReason}`
+    onSaveOverride(selectedSheetWeek.id, total, comment, 'demand_adjustment')
+    setRecipeSheetOpen(false)
+    setSelectedSheetWeek(null)
+  }
+
+  const handleSkuSave = (skuId: string, forecast: number, reason: string) => {
+    if (!selectedSheetWeek) return
+    // TODO: In production, this should save SKU-level overrides
+    // For now, we'll update the week's aggregate forecast
+    const comment = `SKU Override - ${skuId}: ${reason}`
+    onSaveOverride(selectedSheetWeek.id, forecast, comment, 'demand_adjustment')
+    setSkuSheetOpen(false)
+    setSelectedSheetWeek(null)
   }
 
   const isAutoLocked = (week: ForecastWeek) => week.weekout <= 2
@@ -632,11 +668,33 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
               <TableHead className="w-10" />
               <TableHead className="font-semibold text-foreground">Target Week</TableHead>
               <TableHead className="font-semibold text-foreground">Week Phase</TableHead>
-              <TableHead className="text-right font-semibold text-foreground">Baseline (Model)</TableHead>
-              <TableHead className="text-right font-semibold text-foreground">Operational (Local)</TableHead>
-              <TableHead className="text-right font-semibold text-foreground">Previous Run</TableHead>
-              <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
-              <TableHead className="font-semibold text-foreground">Confidence</TableHead>
+              {forecastLevel === 'recipe' ? (
+                <>
+                  <TableHead className="text-right font-semibold text-foreground">Recipes</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Swapped Forecast</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Non-Swapped Forecast</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Total Forecast</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
+                  <TableHead className="font-semibold text-foreground">Overrides</TableHead>
+                </>
+              ) : forecastLevel === 'sku' ? (
+                <>
+                  <TableHead className="text-right font-semibold text-foreground">SKUs</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Total Forecast</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Previous Run</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
+                  <TableHead className="font-semibold text-foreground">Overrides</TableHead>
+                  <TableHead className="font-semibold text-foreground">Confidence</TableHead>
+                </>
+              ) : (
+                <>
+                  <TableHead className="text-right font-semibold text-foreground">Baseline (Model)</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Operational (Local)</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Previous Run</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
+                  <TableHead className="font-semibold text-foreground">Confidence</TableHead>
+                </>
+              )}
               <TableHead className="font-semibold text-foreground">Validation</TableHead>
               <TableHead className="font-semibold text-foreground">Status</TableHead>
               <TableHead className="w-28" />
@@ -645,7 +703,7 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
           <TableBody>
             {filteredWeeks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11} className="h-32 text-center">
+                <TableCell colSpan={forecastLevel === 'recipe' || forecastLevel === 'sku' ? 12 : 11} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <Filter className="h-8 w-8 text-muted-foreground/50" />
                     <p
@@ -753,65 +811,210 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right font-mono">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="cursor-help text-muted-foreground">
-                              {week.forecastBoxcount.toLocaleString()}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs">Baseline (global) - Unconstrained model output</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell className="text-right font-mono">
-                      <span className={cn(
-                        'font-semibold',
-                        week.isManualOverride && 'text-amber-600'
-                      )}>
-                        {finalForecast.toLocaleString()}
-                      </span>
-                      {week.isManualOverride && (
-                        <div className="text-[10px] text-amber-600">Override</div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-muted-foreground">
-                      {compValue ? compValue.toLocaleString() : week.previousForecast.toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {showCompDelta ? (
-                          <DeltaDisplay percent={compDeltaPct} absolute={compDeltaAbs} />
-                        ) : (
-                          <DeltaDisplay percent={week.deltaPercent} absolute={week.deltaAbsolute} />
-                        )}
-                        {onExplainChange && (
+                    {forecastLevel === 'recipe' ? (
+                      <>
+                        {/* Recipes Column */}
+                        <TableCell className="text-right font-mono">
+                          <span className="font-semibold">
+                            {week.recipeCount?.toLocaleString() || '—'}
+                          </span>
+                        </TableCell>
+                        {/* Swapped Forecast Column */}
+                        <TableCell className="text-right font-mono">
+                          <span className="text-muted-foreground">
+                            {week.swappedForecast?.toLocaleString() || '—'}
+                          </span>
+                        </TableCell>
+                        {/* Non-Swapped Forecast Column */}
+                        <TableCell className="text-right font-mono">
+                          <span className="text-muted-foreground">
+                            {week.nonSwappedForecast?.toLocaleString() || '—'}
+                          </span>
+                        </TableCell>
+                        {/* Total Forecast Column */}
+                        <TableCell className="text-right font-mono">
+                          <span className={cn(
+                            'font-semibold',
+                            week.isManualOverride && 'text-amber-600'
+                          )}>
+                            {finalForecast.toLocaleString()}
+                          </span>
+                          {week.isManualOverride && (
+                            <div className="text-[10px] text-amber-600">Override</div>
+                          )}
+                        </TableCell>
+                        {/* Delta Column */}
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            {showCompDelta ? (
+                              <DeltaDisplay percent={compDeltaPct} absolute={compDeltaAbs} />
+                            ) : (
+                              <DeltaDisplay percent={week.deltaPercent} absolute={week.deltaAbsolute} />
+                            )}
+                            {onExplainChange && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-sm"
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => onExplainChange(week)}
+                                    >
+                                      <Eye className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs">View change drivers</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        </TableCell>
+                        {/* Overrides Column */}
+                        <TableCell>
+                          {week.recipeOverridesCount ? (
+                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 text-xs font-semibold">
+                              {week.recipeOverridesCount} override{week.recipeOverridesCount !== 1 ? 's' : ''}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No overrides</span>
+                          )}
+                        </TableCell>
+                      </>
+                    ) : forecastLevel === 'sku' ? (
+                      <>
+                        {/* SKUs Column */}
+                        <TableCell className="text-right font-mono">
+                          <span className="font-semibold">
+                            {week.skuCount?.toLocaleString() || '—'}
+                          </span>
+                        </TableCell>
+                        {/* Total Forecast Column */}
+                        <TableCell className="text-right font-mono">
+                          <span className={cn(
+                            'font-semibold',
+                            week.isManualOverride && 'text-amber-600'
+                          )}>
+                            {finalForecast.toLocaleString()}
+                          </span>
+                          {week.isManualOverride && (
+                            <div className="text-[10px] text-amber-600">Override</div>
+                          )}
+                        </TableCell>
+                        {/* Previous Run Column */}
+                        <TableCell className="text-right font-mono text-muted-foreground">
+                          {compValue ? compValue.toLocaleString() : week.previousForecast.toLocaleString()}
+                        </TableCell>
+                        {/* Delta Column */}
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            {showCompDelta ? (
+                              <DeltaDisplay percent={compDeltaPct} absolute={compDeltaAbs} />
+                            ) : (
+                              <DeltaDisplay percent={week.deltaPercent} absolute={week.deltaAbsolute} />
+                            )}
+                            {onExplainChange && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-sm"
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => onExplainChange(week)}
+                                    >
+                                      <Eye className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs">View change drivers</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        </TableCell>
+                        {/* Overrides Column */}
+                        <TableCell>
+                          {week.skuOverridesCount ? (
+                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 text-xs font-semibold">
+                              {week.skuOverridesCount} override{week.skuOverridesCount !== 1 ? 's' : ''}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No overrides</span>
+                          )}
+                        </TableCell>
+                        {/* Confidence Column */}
+                        <TableCell>
+                          <ConfidenceBar value={week.confidence} />
+                        </TableCell>
+                      </>
+                    ) : (
+                      <>
+                        {/* Standard columns for box/addons levels */}
+                        <TableCell className="text-right font-mono">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon-sm" 
-                                  className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  onClick={() => onExplainChange(week)}
-                                >
-                                  <Eye className="h-3 w-3" />
-                                </Button>
+                                <span className="cursor-help text-muted-foreground">
+                                  {week.forecastBoxcount.toLocaleString()}
+                                </span>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p className="text-xs">View change drivers</p>
+                                <p className="text-xs">Baseline (global) - Unconstrained model output</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <ConfidenceBar value={week.confidence} />
-                    </TableCell>
+                        </TableCell>
+                        <TableCell className="text-right font-mono">
+                          <span className={cn(
+                            'font-semibold',
+                            week.isManualOverride && 'text-amber-600'
+                          )}>
+                            {finalForecast.toLocaleString()}
+                          </span>
+                          {week.isManualOverride && (
+                            <div className="text-[10px] text-amber-600">Override</div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-muted-foreground">
+                          {compValue ? compValue.toLocaleString() : week.previousForecast.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            {showCompDelta ? (
+                              <DeltaDisplay percent={compDeltaPct} absolute={compDeltaAbs} />
+                            ) : (
+                              <DeltaDisplay percent={week.deltaPercent} absolute={week.deltaAbsolute} />
+                            )}
+                            {onExplainChange && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-sm"
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => onExplainChange(week)}
+                                    >
+                                      <Eye className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs">View change drivers</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <ConfidenceBar value={week.confidence} />
+                        </TableCell>
+                      </>
+                    )}
                     <TableCell>
                       <div className="flex items-center gap-1.5">
                         <ValidationStatusIcon status={week.validationStatus} />
@@ -864,7 +1067,7 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && (forecastLevel === 'box' || forecastLevel === 'recipe') && (
+                        {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && forecastLevel === 'box' && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -900,9 +1103,9 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                   </TableRow>
                   {isExpanded && (
                     <TableRow key={`${week.id}-details`} className="bg-muted/20 border-b">
-                      <TableCell colSpan={11} className="py-4">
-                        {editingWeekId === week.id ? (
-                          /* Inline Edit Form */
+                      <TableCell colSpan={forecastLevel === 'recipe' || forecastLevel === 'sku' ? 12 : 11} className="py-4">
+                        {editingWeekId === week.id && forecastLevel === 'box' ? (
+                          /* Inline Edit Form - Only for Box Level */
                           <div className="px-8 space-y-4">
                             <div className="grid grid-cols-4 gap-4">
                               <div className="bg-background rounded-lg p-3 border">
@@ -1013,55 +1216,163 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                         ) : (
                           /* Read-only Expanded Details */
                           <>
-                            <div className="grid grid-cols-5 gap-6 px-8">
-                              <div>
-                                <div className="text-xs text-muted-foreground font-medium uppercase mb-1">
-                                  {comparisonLabel ? `${comparisonLabel} (Comparator)` : 'Previous Run (Comparator)'}
+                            {forecastLevel === 'recipe' ? (
+                              /* Recipe-specific expanded details */
+                              <div className="grid grid-cols-5 gap-6 px-8">
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Recipe Count</div>
+                                  <div className="font-mono font-semibold">
+                                    {week.recipeCount?.toLocaleString() || '—'}
+                                  </div>
                                 </div>
-                                <div className="font-mono">
-                                  {compValue ? `${compValue.toLocaleString()} ${unit}` : `${week.previousForecast.toLocaleString()} ${unit}`}
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Swapped Forecast</div>
+                                  <div className="font-mono">
+                                    {week.swappedForecast?.toLocaleString() || '—'}
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                                    {week.swappedForecast && finalForecast ? `${((week.swappedForecast / finalForecast) * 100).toFixed(0)}% of total` : ''}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Non-Swapped Forecast</div>
+                                  <div className="font-mono">
+                                    {week.nonSwappedForecast?.toLocaleString() || '—'}
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                                    {week.nonSwappedForecast && finalForecast ? `${((week.nonSwappedForecast / finalForecast) * 100).toFixed(0)}% of total` : ''}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Recipe Overrides</div>
+                                  <div className="text-sm">
+                                    {week.recipeOverridesCount ? (
+                                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 text-xs font-semibold">
+                                        {week.recipeOverridesCount} override{week.recipeOverridesCount !== 1 ? 's' : ''}
+                                      </Badge>
+                                    ) : (
+                                      <span className="text-muted-foreground">No overrides</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Last Modified</div>
+                                  <div className="text-sm">
+                                    {week.lastModifiedBy ? (
+                                      <>
+                                        <div>{week.lastModifiedBy}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {week.lastModifiedAt ? new Date(week.lastModifiedAt).toLocaleString() : '-'}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <span className="text-muted-foreground">No modifications</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                              <div>
-                                <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Actuals</div>
-                                <div className="font-mono">
-                                  {week.actualBoxcount ? `${week.actualBoxcount.toLocaleString()} ${unit}` : 'Not available'}
+                            ) : forecastLevel === 'sku' ? (
+                              /* SKU-specific expanded details */
+                              <div className="grid grid-cols-5 gap-6 px-8">
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">SKU Count</div>
+                                  <div className="font-mono font-semibold">
+                                    {week.skuCount?.toLocaleString() || '—'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Total Forecast</div>
+                                  <div className="font-mono font-semibold">
+                                    {finalForecast.toLocaleString()} {unit}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">SKU Overrides</div>
+                                  <div className="text-sm">
+                                    {week.skuOverridesCount ? (
+                                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 text-xs font-semibold">
+                                        {week.skuOverridesCount} override{week.skuOverridesCount !== 1 ? 's' : ''}
+                                      </Badge>
+                                    ) : (
+                                      <span className="text-muted-foreground">No overrides</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Confidence</div>
+                                  <div className="flex items-center gap-2">
+                                    <ConfidenceBar value={week.confidence} />
+                                    <span className="text-sm font-semibold">{week.confidence}%</span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Last Modified</div>
+                                  <div className="text-sm">
+                                    {week.lastModifiedBy ? (
+                                      <>
+                                        <div>{week.lastModifiedBy}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {week.lastModifiedAt ? new Date(week.lastModifiedAt).toLocaleString() : '-'}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <span className="text-muted-foreground">No modifications</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                              <div>
-                                <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Last Modified</div>
-                                <div className="text-sm">
-                                  {week.lastModifiedBy ? (
-                                    <>
-                                      <div>{week.lastModifiedBy}</div>
-                                      <div className="text-xs text-muted-foreground">
-                                        {week.lastModifiedAt ? new Date(week.lastModifiedAt).toLocaleString() : '-'}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <span className="text-muted-foreground">No modifications</span>
-                                  )}
+                            ) : (
+                              /* Box/Addons-specific expanded details */
+                              <div className="grid grid-cols-5 gap-6 px-8">
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">
+                                    {comparisonLabel ? `${comparisonLabel} (Comparator)` : 'Previous Run (Comparator)'}
+                                  </div>
+                                  <div className="font-mono">
+                                    {compValue ? `${compValue.toLocaleString()} ${unit}` : `${week.previousForecast.toLocaleString()} ${unit}`}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Actuals</div>
+                                  <div className="font-mono">
+                                    {week.actualBoxcount ? `${week.actualBoxcount.toLocaleString()} ${unit}` : 'Not available'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Last Modified</div>
+                                  <div className="text-sm">
+                                    {week.lastModifiedBy ? (
+                                      <>
+                                        <div>{week.lastModifiedBy}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {week.lastModifiedAt ? new Date(week.lastModifiedAt).toLocaleString() : '-'}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <span className="text-muted-foreground">No modifications</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Override Reason</div>
+                                  <div className="text-sm">
+                                    {week.overrideReason ? (
+                                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 text-xs font-semibold">
+                                        {overrideReasonLabels[week.overrideReason]}
+                                      </Badge>
+                                    ) : (
+                                      <span className="text-muted-foreground">No override</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Planner Comment</div>
+                                  <div className="text-sm">
+                                    {week.plannerComment || <span className="text-muted-foreground">No comment</span>}
+                                  </div>
                                 </div>
                               </div>
-                              <div>
-                                <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Override Reason</div>
-                                <div className="text-sm">
-                                  {week.overrideReason ? (
-                                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 text-xs font-semibold">
-                                      {overrideReasonLabels[week.overrideReason]}
-                                    </Badge>
-                                  ) : (
-                                    <span className="text-muted-foreground">No override</span>
-                                  )}
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-xs text-muted-foreground font-medium uppercase mb-1">Planner Comment</div>
-                                <div className="text-sm">
-                                  {week.plannerComment || <span className="text-muted-foreground">No comment</span>}
-                                </div>
-                              </div>
-                            </div>
+                            )}
                             <div className="px-8 mt-4 pt-3 border-t flex items-center gap-2">
                               {onExplainChange && (
                                 <Button
@@ -1073,7 +1384,7 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                                   View Change Drivers
                                 </Button>
                               )}
-                              {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && (forecastLevel === 'box' || forecastLevel === 'recipe') && (
+                              {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && forecastLevel === 'box' && (
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -1081,6 +1392,36 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                                 >
                                   <Edit2 className="h-3.5 w-3.5 mr-1.5" />
                                   Edit Operational Forecast
+                                </Button>
+                              )}
+                              {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && forecastLevel === 'recipe' && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => openRecipeSheet(week)}
+                                  style={{
+                                    backgroundColor: 'var(--hf-foreground-positive-positive-dark)',
+                                    color: 'var(--hf-foreground-light-neutral-neutral-light)',
+                                    fontWeight: 600,
+                                  }}
+                                  className="hover:opacity-90"
+                                >
+                                  <Edit2 className="h-3.5 w-3.5 mr-1.5" />
+                                  {week.isManualOverride ? 'Edit Recipe Override' : 'Edit Recipe Forecast'}
+                                </Button>
+                              )}
+                              {!isLocked && !isAutoLocked(week) && week.approvalStatus !== 'approved' && forecastLevel === 'sku' && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => openSkuSheet(week)}
+                                  style={{
+                                    backgroundColor: 'var(--hf-foreground-positive-positive-dark)',
+                                    color: 'var(--hf-foreground-light-neutral-neutral-light)',
+                                    fontWeight: 600,
+                                  }}
+                                  className="hover:opacity-90"
+                                >
+                                  <Edit2 className="h-3.5 w-3.5 mr-1.5" />
+                                  {week.isManualOverride ? 'Edit SKU Override' : 'Edit SKU Forecast'}
                                 </Button>
                               )}
                             </div>
@@ -1126,6 +1467,38 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
           </div>
         )}
       </CardContent>
+
+      {/* Recipe Override Sheet - Portal rendered */}
+      {selectedSheetWeek && (
+        <RecipeOverrideSheet
+          open={recipeSheetOpen}
+          onClose={() => {
+            setRecipeSheetOpen(false)
+            setSelectedSheetWeek(null)
+          }}
+          weekLabel={selectedSheetWeek.weekLabel}
+          dateRange={`${selectedSheetWeek.startDate} – ${selectedSheetWeek.endDate}`}
+          market="US"
+          recipes={mockRecipeData}
+          onSave={handleRecipeSave}
+        />
+      )}
+
+      {/* SKU Override Sheet - Portal rendered */}
+      {selectedSheetWeek && (
+        <SkuOverrideSheet
+          open={skuSheetOpen}
+          onClose={() => {
+            setSkuSheetOpen(false)
+            setSelectedSheetWeek(null)
+          }}
+          weekLabel={selectedSheetWeek.weekLabel}
+          dateRange={`${selectedSheetWeek.startDate} – ${selectedSheetWeek.endDate}`}
+          market="US"
+          skus={mockSkuData}
+          onSave={handleSkuSave}
+        />
+      )}
     </Card>
   )
 }

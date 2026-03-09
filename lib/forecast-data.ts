@@ -98,6 +98,14 @@ export interface ForecastWeek {
   weekPhase: WeekPhase
   weekout: number // 1-20, weeks out from today
   forecastRunDay: ForecastVersionDay // which run produced this row
+  // Recipe-specific fields (populated when forecastLevel === 'recipe')
+  recipeCount?: number
+  swappedForecast?: number
+  nonSwappedForecast?: number
+  recipeOverridesCount?: number
+  // SKU-specific fields (populated when forecastLevel === 'sku')
+  skuCount?: number
+  skuOverridesCount?: number
 }
 
 export interface ForecastVersion {
@@ -156,6 +164,14 @@ export const forecastWeeks: ForecastWeek[] = [
     weekPhase: 'non-live',
     weekout: 1,
     forecastRunDay: 'wednesday',
+    // Recipe-specific mock data
+    recipeCount: 42,
+    swappedForecast: 11880,  // 60% of boxcount
+    nonSwappedForecast: 7920,  // 40% of boxcount
+    recipeOverridesCount: 0,
+    // SKU-specific mock data
+    skuCount: 245,
+    skuOverridesCount: 0,
   },
   {
     id: 'w2026-10',
@@ -214,6 +230,15 @@ export const forecastWeeks: ForecastWeek[] = [
     weekPhase: 'non-live',
     weekout: 3,
     forecastRunDay: 'wednesday',
+
+    // Recipe-specific mock data
+    recipeCount: 41,
+    swappedForecast: 11700,  // ~60% of boxcount
+    nonSwappedForecast: 7800,  // ~40% of boxcount
+    recipeOverridesCount: 0,
+    // SKU-specific mock data
+    skuCount: 238,
+    skuOverridesCount: 0,
   },
   {
     id: 'w2026-12',
@@ -243,6 +268,15 @@ export const forecastWeeks: ForecastWeek[] = [
     weekPhase: 'non-live',
     weekout: 4,
     forecastRunDay: 'wednesday',
+
+    // Recipe-specific mock data
+    recipeCount: 43,
+    swappedForecast: 11340,  // ~60% of boxcount
+    nonSwappedForecast: 7560,  // ~40% of boxcount
+    recipeOverridesCount: 3,
+    // SKU-specific mock data
+    skuCount: 252,
+    skuOverridesCount: 2,
   },
   {
     id: 'w2026-13',
@@ -272,6 +306,15 @@ export const forecastWeeks: ForecastWeek[] = [
     weekPhase: 'non-live',
     weekout: 5,
     forecastRunDay: 'wednesday',
+
+    // Recipe-specific mock data
+    recipeCount: 44,
+    swappedForecast: 11520,  // ~60% of boxcount
+    nonSwappedForecast: 7680,  // ~40% of boxcount
+    recipeOverridesCount: 0,
+    // SKU-specific mock data
+    skuCount: 241,
+    skuOverridesCount: 0,
   },
   {
     id: 'w2026-14',
@@ -301,6 +344,15 @@ export const forecastWeeks: ForecastWeek[] = [
     weekPhase: 'non-live',
     weekout: 6,
     forecastRunDay: 'wednesday',
+
+    // Recipe-specific mock data
+    recipeCount: 46,
+    swappedForecast: 12060,  // ~60% of boxcount
+    nonSwappedForecast: 8040,  // ~40% of boxcount
+    recipeOverridesCount: 1,
+    // SKU-specific mock data
+    skuCount: 267,
+    skuOverridesCount: 1,
   },
   {
     id: 'w2026-15',
@@ -330,6 +382,15 @@ export const forecastWeeks: ForecastWeek[] = [
     weekPhase: 'non-live',
     weekout: 7,
     forecastRunDay: 'wednesday',
+
+    // Recipe-specific mock data
+    recipeCount: 45,
+    swappedForecast: 12300,  // ~60% of boxcount
+    nonSwappedForecast: 8200,  // ~40% of boxcount
+    recipeOverridesCount: 0,
+    // SKU-specific mock data
+    skuCount: 259,
+    skuOverridesCount: 0,
   },
   {
     id: 'w2026-16',
@@ -359,6 +420,15 @@ export const forecastWeeks: ForecastWeek[] = [
     weekPhase: 'non-live',
     weekout: 8,
     forecastRunDay: 'wednesday',
+
+    // Recipe-specific mock data
+    recipeCount: 47,
+    swappedForecast: 12600,  // ~60% of boxcount
+    nonSwappedForecast: 8400,  // ~40% of boxcount
+    recipeOverridesCount: 2,
+    // SKU-specific mock data
+    skuCount: 271,
+    skuOverridesCount: 3,
   },
 ]
 
@@ -700,3 +770,52 @@ export function getChartData(weeks: ForecastWeek[], includeHistory = true, compa
 
   return [...historyPoints, ...forecastPoints]
 }
+
+// Mock Recipe and SKU data for override sheets
+// TODO: Replace with real API call when backend is ready
+export interface RecipeData {
+  id: string
+  name: string
+  swapped: number
+  nonSwapped: number
+  total: number
+}
+
+export interface SkuData {
+  id: string
+  name: string
+  forecast: number
+}
+
+// Mock recipe data - represents recipes in a given week
+export const mockRecipeData: RecipeData[] = [
+  { id: 'RCP-001', name: 'Garlic Butter Chicken', swapped: 12500, nonSwapped: 8200, total: 20700 },
+  { id: 'RCP-002', name: 'Beef Tacos with Pico', swapped: 15200, nonSwapped: 9800, total: 25000 },
+  { id: 'RCP-003', name: 'Salmon with Asparagus', swapped: 8900, nonSwapped: 5600, total: 14500 },
+  { id: 'RCP-004', name: 'Veggie Stir Fry Bowl', swapped: 6700, nonSwapped: 4200, total: 10900 },
+  { id: 'RCP-005', name: 'BBQ Pork Chops', swapped: 11200, nonSwapped: 7300, total: 18500 },
+  { id: 'RCP-006', name: 'Mediterranean Pasta', swapped: 9400, nonSwapped: 6100, total: 15500 },
+  { id: 'RCP-007', name: 'Thai Coconut Curry', swapped: 7800, nonSwapped: 4900, total: 12700 },
+  { id: 'RCP-008', name: 'Lemon Herb Shrimp', swapped: 10300, nonSwapped: 6700, total: 17000 },
+  { id: 'RCP-009', name: 'Turkey Meatballs', swapped: 8600, nonSwapped: 5500, total: 14100 },
+  { id: 'RCP-010', name: 'Southwest Chicken Wrap', swapped: 13400, nonSwapped: 8700, total: 22100 },
+]
+
+// Mock SKU data - represents SKUs in a given week
+export const mockSkuData: SkuData[] = [
+  { id: 'SKU-1001', name: 'Chicken Breast 400g', forecast: 45200 },
+  { id: 'SKU-1002', name: 'Ground Beef 500g', forecast: 38900 },
+  { id: 'SKU-1003', name: 'Salmon Fillet 300g', forecast: 21500 },
+  { id: 'SKU-1004', name: 'Bell Peppers Mix 3pk', forecast: 52100 },
+  { id: 'SKU-1005', name: 'Cherry Tomatoes 250g', forecast: 48700 },
+  { id: 'SKU-1006', name: 'Asparagus Bundle', forecast: 18900 },
+  { id: 'SKU-1007', name: 'Basmati Rice 1kg', forecast: 34200 },
+  { id: 'SKU-1008', name: 'Garlic Cloves 100g', forecast: 61300 },
+  { id: 'SKU-1009', name: 'Fresh Basil 25g', forecast: 29400 },
+  { id: 'SKU-1010', name: 'Coconut Milk 400ml', forecast: 22800 },
+  { id: 'SKU-1011', name: 'Shrimp 300g', forecast: 19600 },
+  { id: 'SKU-1012', name: 'Turkey Ground 500g', forecast: 16700 },
+  { id: 'SKU-1013', name: 'Tortilla Wraps 6pk', forecast: 41200 },
+  { id: 'SKU-1014', name: 'Pork Chops 2pk', forecast: 24500 },
+  { id: 'SKU-1015', name: 'Pasta Penne 500g', forecast: 36800 },
+]

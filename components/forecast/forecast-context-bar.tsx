@@ -507,11 +507,11 @@ export function ForecastContextBar({
       {/* Dimension-Specific Filters (conditional) */}
       {(forecastLevel === 'recipe' || forecastLevel === 'sku' || forecastLevel === 'addons') && (
         <div
-          className="flex items-center gap-4"
+          className="flex items-center gap-4 py-3"
           style={{
-            height: '40px',
             paddingLeft: '24px',
             paddingRight: '24px',
+            /* token: color-border-subtle */
             borderTop: '1px solid #F3F4F6',
           }}
         >
