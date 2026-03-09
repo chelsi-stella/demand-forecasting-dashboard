@@ -39,8 +39,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import type { ForecastWeek, ValidationStatus, ApprovalStatus, WeekPhase, ForecastLevel, ComparisonVersion, OverrideReason, RecipeData, SkuData } from '@/lib/forecast-data'
-import { overrideReasonLabels, forecastLevelUnits, mockRecipeData, mockSkuData } from '@/lib/forecast-data'
+import type { ForecastWeek, ValidationStatus, ApprovalStatus, WeekPhase, ForecastLevel, ComparisonVersion, OverrideReason, RecipeData, SkuData, SkuForecastRow } from '@/lib/forecast-data'
+import { overrideReasonLabels, forecastLevelUnits, mockRecipeData, mockSkuData, mockSkuForecastRows } from '@/lib/forecast-data'
 import { RecipeOverrideSheet } from './recipe-override-sheet'
 import { SkuOverrideSheet } from './sku-override-sheet'
 
@@ -665,45 +665,156 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
         <Table>
           <TableHeader>
             <TableRow className="border-b bg-background hover:bg-background">
-              <TableHead className="w-10" />
-              <TableHead className="font-semibold text-foreground">Target Week</TableHead>
-              <TableHead className="font-semibold text-foreground">Week Phase</TableHead>
-              {forecastLevel === 'recipe' ? (
+              {forecastLevel === 'sku' ? (
                 <>
-                  <TableHead className="text-right font-semibold text-foreground">Recipes</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Swapped Forecast</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Non-Swapped Forecast</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Total Forecast</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
-                  <TableHead className="font-semibold text-foreground">Overrides</TableHead>
-                </>
-              ) : forecastLevel === 'sku' ? (
-                <>
-                  <TableHead className="text-right font-semibold text-foreground">SKUs</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Total Forecast</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Previous Run</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
-                  <TableHead className="font-semibold text-foreground">Overrides</TableHead>
-                  <TableHead className="font-semibold text-foreground">Confidence</TableHead>
+                  {/* SKU-specific headers */}
+                  <TableHead className="font-semibold text-foreground">Market</TableHead>
+                  <TableHead className="font-semibold text-foreground">Target Week</TableHead>
+                  <TableHead className="font-semibold text-foreground">SKU ID</TableHead>
+                  <TableHead className="font-semibold text-foreground">SKU Name</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground">Forecast</TableHead>
+                  <TableHead className="font-semibold text-foreground">Reason for Override</TableHead>
+                  <TableHead className="font-semibold text-foreground">Last Modified</TableHead>
+                  <TableHead className="w-28" />
                 </>
               ) : (
                 <>
-                  <TableHead className="text-right font-semibold text-foreground">Baseline (Model)</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Operational (Local)</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Previous Run</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
-                  <TableHead className="font-semibold text-foreground">Confidence</TableHead>
+                  {/* Week-based headers for Box/Recipe levels */}
+                  <TableHead className="w-10" />
+                  <TableHead className="font-semibold text-foreground">Target Week</TableHead>
+                  <TableHead className="font-semibold text-foreground">Week Phase</TableHead>
+                  {forecastLevel === 'recipe' ? (
+                    <>
+                      <TableHead className="text-right font-semibold text-foreground">Recipes</TableHead>
+                      <TableHead className="text-right font-semibold text-foreground">Swapped Forecast</TableHead>
+                      <TableHead className="text-right font-semibold text-foreground">Non-Swapped Forecast</TableHead>
+                      <TableHead className="text-right font-semibold text-foreground">Total Forecast</TableHead>
+                      <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
+                      <TableHead className="font-semibold text-foreground">Overrides</TableHead>
+                    </>
+                  ) : (
+                    <>
+                      <TableHead className="text-right font-semibold text-foreground">Baseline (Model)</TableHead>
+                      <TableHead className="text-right font-semibold text-foreground">Operational (Local)</TableHead>
+                      <TableHead className="text-right font-semibold text-foreground">Previous Run</TableHead>
+                      <TableHead className="text-right font-semibold text-foreground">Delta</TableHead>
+                      <TableHead className="font-semibold text-foreground">Confidence</TableHead>
+                    </>
+                  )}
+                  <TableHead className="font-semibold text-foreground">Validation</TableHead>
+                  <TableHead className="font-semibold text-foreground">Status</TableHead>
+                  <TableHead className="w-28" />
                 </>
               )}
-              <TableHead className="font-semibold text-foreground">Validation</TableHead>
-              <TableHead className="font-semibold text-foreground">Status</TableHead>
-              <TableHead className="w-28" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredWeeks.length === 0 ? (
+            {forecastLevel === 'sku' ? (
+              /* SKU-specific table body - show individual SKUs as rows */
+              mockSkuForecastRows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-32 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Filter className="h-8 w-8 text-muted-foreground/50" />
+                      <p className="font-medium text-sm text-muted-foreground">
+                        No SKU forecasts available
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                mockSkuForecastRows.map((skuRow) => (
+                  <TableRow
+                    key={skuRow.id}
+                    className={cn(
+                      'group transition-colors duration-200 cursor-pointer border-b',
+                      skuRow.isManualOverride && 'bg-amber-50/30'
+                    )}
+                  >
+                    {/* Market */}
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs font-semibold">
+                        {skuRow.market}
+                      </Badge>
+                    </TableCell>
+                    {/* Target Week */}
+                    <TableCell>
+                      <div>
+                        <span className="font-medium">{skuRow.weekLabel}</span>
+                        <div className="text-xs text-muted-foreground">
+                          {skuRow.startDate} - {skuRow.endDate}
+                        </div>
+                      </div>
+                    </TableCell>
+                    {/* SKU ID */}
+                    <TableCell>
+                      <span className="font-mono text-xs font-semibold">{skuRow.skuId}</span>
+                    </TableCell>
+                    {/* SKU Name */}
+                    <TableCell>
+                      <span className="font-medium">{skuRow.skuName}</span>
+                    </TableCell>
+                    {/* Forecast */}
+                    <TableCell className="text-right font-mono">
+                      <span className={cn(
+                        'font-semibold',
+                        skuRow.isManualOverride && 'text-amber-600'
+                      )}>
+                        {skuRow.forecast.toLocaleString()}
+                      </span>
+                      {skuRow.isManualOverride && (
+                        <div className="text-[10px] text-amber-600">Override</div>
+                      )}
+                    </TableCell>
+                    {/* Reason for Override */}
+                    <TableCell>
+                      {skuRow.overrideReason && skuRow.reasonLabel ? (
+                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 text-xs font-semibold">
+                          {skuRow.reasonLabel}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">No override</span>
+                      )}
+                    </TableCell>
+                    {/* Last Modified */}
+                    <TableCell>
+                      {skuRow.lastModifiedBy ? (
+                        <div className="text-sm">
+                          <div className="font-medium">{skuRow.lastModifiedBy}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {skuRow.lastModifiedAt ? new Date(skuRow.lastModifiedAt).toLocaleString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                            }) : '-'}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    {/* Actions */}
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => {
+                          // TODO: Open SKU override sheet for editing
+                          console.log('Edit SKU:', skuRow.skuId)
+                        }}
+                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )
+            ) : filteredWeeks.length === 0 ? (
+              /* Week-based empty state */
               <TableRow>
-                <TableCell colSpan={forecastLevel === 'recipe' || forecastLevel === 'sku' ? 12 : 11} className="h-32 text-center">
+                <TableCell colSpan={forecastLevel === 'recipe' ? 12 : 11} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <Filter className="h-8 w-8 text-muted-foreground/50" />
                     <p
@@ -731,6 +842,7 @@ export function ForecastTable({ weeks, onEditWeek, onSaveOverride, onLockWeek, o
                 </TableCell>
               </TableRow>
             ) : (
+              /* Week-based table body for Box/Recipe levels */
               filteredWeeks.map((week) => {
               const isExpanded = expandedWeeks.has(week.id)
               const isLocked = week.approvalStatus === 'locked'

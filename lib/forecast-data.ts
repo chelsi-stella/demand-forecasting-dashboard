@@ -787,6 +787,24 @@ export interface SkuData {
   forecast: number
 }
 
+// SKU Forecast Row - represents individual SKUs for the table
+export interface SkuForecastRow {
+  id: string // unique row ID
+  market: string
+  targetWeek: string
+  weekLabel: string
+  startDate: string
+  endDate: string
+  skuId: string
+  skuName: string
+  forecast: number
+  overrideReason?: OverrideReason
+  reasonLabel?: string
+  lastModifiedBy?: string
+  lastModifiedAt?: string
+  isManualOverride?: boolean
+}
+
 // Mock recipe data - represents recipes in a given week
 export const mockRecipeData: RecipeData[] = [
   { id: 'RCP-001', name: 'Garlic Butter Chicken', swapped: 12500, nonSwapped: 8200, total: 20700 },
@@ -801,7 +819,7 @@ export const mockRecipeData: RecipeData[] = [
   { id: 'RCP-010', name: 'Southwest Chicken Wrap', swapped: 13400, nonSwapped: 8700, total: 22100 },
 ]
 
-// Mock SKU data - represents SKUs in a given week
+// Mock SKU data - represents SKUs in a given week (used in override sheet)
 export const mockSkuData: SkuData[] = [
   { id: 'SKU-1001', name: 'Chicken Breast 400g', forecast: 45200 },
   { id: 'SKU-1002', name: 'Ground Beef 500g', forecast: 38900 },
@@ -818,4 +836,35 @@ export const mockSkuData: SkuData[] = [
   { id: 'SKU-1013', name: 'Tortilla Wraps 6pk', forecast: 41200 },
   { id: 'SKU-1014', name: 'Pork Chops 2pk', forecast: 24500 },
   { id: 'SKU-1015', name: 'Pasta Penne 500g', forecast: 36800 },
+]
+
+// Mock SKU forecast rows - represents individual SKU forecasts for the table
+export const mockSkuForecastRows: SkuForecastRow[] = [
+  // Week 2026-09 SKUs
+  { id: 'sku-row-1', market: 'US', targetWeek: 'W2026-09', weekLabel: 'W2026-09', startDate: '2026-03-02', endDate: '2026-03-08', skuId: 'SKU-1001', skuName: 'Chicken Breast 400g', forecast: 45200 },
+  { id: 'sku-row-2', market: 'US', targetWeek: 'W2026-09', weekLabel: 'W2026-09', startDate: '2026-03-02', endDate: '2026-03-08', skuId: 'SKU-1002', skuName: 'Ground Beef 500g', forecast: 38900, overrideReason: 'supply_constraint', reasonLabel: 'Supply Constraint', isManualOverride: true, lastModifiedBy: 'Sarah Chen', lastModifiedAt: '2026-03-07T14:32:00' },
+  { id: 'sku-row-3', market: 'US', targetWeek: 'W2026-09', weekLabel: 'W2026-09', startDate: '2026-03-02', endDate: '2026-03-08', skuId: 'SKU-1003', skuName: 'Salmon Fillet 300g', forecast: 21500 },
+  { id: 'sku-row-4', market: 'US', targetWeek: 'W2026-09', weekLabel: 'W2026-09', startDate: '2026-03-02', endDate: '2026-03-08', skuId: 'SKU-1004', skuName: 'Bell Peppers Mix 3pk', forecast: 52100 },
+  { id: 'sku-row-5', market: 'US', targetWeek: 'W2026-09', weekLabel: 'W2026-09', startDate: '2026-03-02', endDate: '2026-03-08', skuId: 'SKU-1005', skuName: 'Cherry Tomatoes 250g', forecast: 48700 },
+
+  // Week 2026-10 SKUs
+  { id: 'sku-row-6', market: 'US', targetWeek: 'W2026-10', weekLabel: 'W2026-10', startDate: '2026-03-09', endDate: '2026-03-15', skuId: 'SKU-1001', skuName: 'Chicken Breast 400g', forecast: 46800 },
+  { id: 'sku-row-7', market: 'US', targetWeek: 'W2026-10', weekLabel: 'W2026-10', startDate: '2026-03-09', endDate: '2026-03-15', skuId: 'SKU-1002', skuName: 'Ground Beef 500g', forecast: 39500 },
+  { id: 'sku-row-8', market: 'US', targetWeek: 'W2026-10', weekLabel: 'W2026-10', startDate: '2026-03-09', endDate: '2026-03-15', skuId: 'SKU-1006', skuName: 'Asparagus Bundle', forecast: 19200, overrideReason: 'demand_adjustment', reasonLabel: 'Demand Adjustment', isManualOverride: true, lastModifiedBy: 'Mike Johnson', lastModifiedAt: '2026-03-08T09:15:00' },
+  { id: 'sku-row-9', market: 'US', targetWeek: 'W2026-10', weekLabel: 'W2026-10', startDate: '2026-03-09', endDate: '2026-03-15', skuId: 'SKU-1007', skuName: 'Basmati Rice 1kg', forecast: 35100 },
+  { id: 'sku-row-10', market: 'US', targetWeek: 'W2026-10', weekLabel: 'W2026-10', startDate: '2026-03-09', endDate: '2026-03-15', skuId: 'SKU-1008', skuName: 'Garlic Cloves 100g', forecast: 62000 },
+
+  // Week 2026-11 SKUs
+  { id: 'sku-row-11', market: 'US', targetWeek: 'W2026-11', weekLabel: 'W2026-11', startDate: '2026-03-16', endDate: '2026-03-22', skuId: 'SKU-1001', skuName: 'Chicken Breast 400g', forecast: 44900 },
+  { id: 'sku-row-12', market: 'US', targetWeek: 'W2026-11', weekLabel: 'W2026-11', startDate: '2026-03-16', endDate: '2026-03-22', skuId: 'SKU-1003', skuName: 'Salmon Fillet 300g', forecast: 22100 },
+  { id: 'sku-row-13', market: 'US', targetWeek: 'W2026-11', weekLabel: 'W2026-11', startDate: '2026-03-16', endDate: '2026-03-22', skuId: 'SKU-1009', skuName: 'Fresh Basil 25g', forecast: 30200, overrideReason: 'marketing_event', reasonLabel: 'Marketing Event', isManualOverride: true, lastModifiedBy: 'Sarah Chen', lastModifiedAt: '2026-03-14T16:20:00' },
+  { id: 'sku-row-14', market: 'US', targetWeek: 'W2026-11', weekLabel: 'W2026-11', startDate: '2026-03-16', endDate: '2026-03-22', skuId: 'SKU-1010', skuName: 'Coconut Milk 400ml', forecast: 23400 },
+  { id: 'sku-row-15', market: 'US', targetWeek: 'W2026-11', weekLabel: 'W2026-11', startDate: '2026-03-16', endDate: '2026-03-22', skuId: 'SKU-1011', skuName: 'Shrimp 300g', forecast: 20100 },
+
+  // Week 2026-12 SKUs
+  { id: 'sku-row-16', market: 'US', targetWeek: 'W2026-12', weekLabel: 'W2026-12', startDate: '2026-03-23', endDate: '2026-03-29', skuId: 'SKU-1002', skuName: 'Ground Beef 500g', forecast: 37800 },
+  { id: 'sku-row-17', market: 'US', targetWeek: 'W2026-12', weekLabel: 'W2026-12', startDate: '2026-03-23', endDate: '2026-03-29', skuId: 'SKU-1004', skuName: 'Bell Peppers Mix 3pk', forecast: 53200 },
+  { id: 'sku-row-18', market: 'US', targetWeek: 'W2026-12', weekLabel: 'W2026-12', startDate: '2026-03-23', endDate: '2026-03-29', skuId: 'SKU-1012', skuName: 'Turkey Ground 500g', forecast: 17200 },
+  { id: 'sku-row-19', market: 'US', targetWeek: 'W2026-12', weekLabel: 'W2026-12', startDate: '2026-03-23', endDate: '2026-03-29', skuId: 'SKU-1013', skuName: 'Tortilla Wraps 6pk', forecast: 42000 },
+  { id: 'sku-row-20', market: 'US', targetWeek: 'W2026-12', weekLabel: 'W2026-12', startDate: '2026-03-23', endDate: '2026-03-29', skuId: 'SKU-1014', skuName: 'Pork Chops 2pk', forecast: 25100 },
 ]
