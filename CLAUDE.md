@@ -1,5 +1,65 @@
 # Demand Forecasting Dashboard - Project Instructions
 
+## 🚨 MANDATORY PRE-DESIGN CHECKLIST
+
+**BEFORE making ANY design decisions, UI changes, or component modifications, you MUST:**
+
+### 1. Review Design Tokens (REQUIRED)
+- ✅ Check `DESIGN_TOKENS.md` for available HelloFresh tokens
+- ✅ Verify token exists for colors, spacing, typography, borders
+- ✅ Never use arbitrary hex colors or pixel values
+- ✅ Use `--hf-` prefixed CSS variables from `app/globals.css`
+
+### 2. Consult Design System (REQUIRED)
+- ✅ Search HelloFresh Enterprise Design System in Figma first
+- ✅ Use `get_design_context` to fetch component patterns
+- ✅ Follow existing component structures and variants
+- ✅ Check for similar patterns already in the codebase
+
+### 3. Apply UI Best Practices (REQUIRED)
+- ✅ **Consistency**: Use existing patterns, don't invent new ones
+- ✅ **Clarity**: Labels are clear, actions are obvious
+- ✅ **Efficiency**: Minimize clicks, reduce cognitive load
+- ✅ **Feedback**: Show loading states, confirmations, errors
+- ✅ **Accessibility**: Proper contrast, keyboard navigation, ARIA labels
+- ✅ **Responsiveness**: Mobile-friendly, works at all viewport sizes
+- ✅ **Information Hierarchy**: Most important content is most prominent
+- ✅ **White Space**: Adequate breathing room between elements
+- ✅ **Visual Balance**: Aligned elements, consistent spacing
+- ✅ **Progressive Disclosure**: Show only what's needed, when needed
+
+### 4. UI Design Anti-Patterns to AVOID
+- ❌ **Redundant UI**: Duplicate information or controls (e.g., two status legends)
+- ❌ **Hidden Affordances**: Interactive elements that don't look clickable
+- ❌ **Inconsistent Patterns**: Using different styles for the same action
+- ❌ **Information Overload**: Too much data without hierarchy or filtering
+- ❌ **Poor Contrast**: Text that's hard to read (must meet WCAG AA)
+- ❌ **Unexpected Behavior**: Actions that don't match user expectations
+- ❌ **Non-Standard Interactions**: Unusual gestures or click patterns
+- ❌ **Destructive Actions Without Confirmation**: Delete/remove without warning
+
+### 5. HelloFresh-Specific Patterns
+- ✅ **Multi-select filter pills**: Green when active, with count badges
+- ✅ **Status badges**: Semantic colors (green=success, amber=warning, red=error)
+- ✅ **Override indicators**: Amber background, "Override" label
+- ✅ **Action buttons**: Primary=green, Secondary=outline, Destructive=red
+- ✅ **Data tables**: Expandable rows, hover states, clear hierarchy
+- ✅ **Form fields**: Labels above inputs, required field indicators
+- ✅ **Modal/Sheet patterns**: Right-side sheets for focused tasks
+
+### 6. Decision Framework
+**Ask yourself before implementing:**
+1. Does this design token exist? (Check DESIGN_TOKENS.md)
+2. Does Figma have this pattern? (Use get_design_context)
+3. Does the codebase already have this? (Search components/)
+4. Is this the simplest solution? (Avoid over-engineering)
+5. Is this consistent with existing UI? (Match patterns)
+6. Will users understand this immediately? (Clarity test)
+7. Does this reduce or increase cognitive load? (Efficiency test)
+8. Have I avoided creating redundant UI? (Review checklist)
+
+---
+
 ## Design System Requirements
 
 ### ⚠️ MANDATORY: Always Use HelloFresh Enterprise Design System
@@ -292,12 +352,17 @@ See `DESIGN_TOKENS.md` for complete pill button patterns with code examples.
 
 ### Workflow for Design Changes
 
-1. **User provides Figma URL** → Extract fileKey and nodeId
-2. **Fetch design** → Use `get_design_context` Figma MCP tool
-3. **Review existing code** → Check if similar components exist
-4. **Adapt design** → Modify existing components or create new ones using design tokens
-5. **Test tokens** → Verify all colors, spacing, and typography match the design system
-6. **Map to Figma** → Use Code Connect to link component back to Figma
+**ALWAYS start with the Pre-Design Checklist above, then:**
+
+1. **User provides Figma URL or design request** → Extract fileKey and nodeId (if applicable)
+2. **Complete Pre-Design Checklist** → Review tokens, design system, UI best practices
+3. **Fetch design** → Use `get_design_context` Figma MCP tool (if Figma URL provided)
+4. **Review existing code** → Check if similar components exist in components/
+5. **Adapt design** → Modify existing components or create new ones using design tokens
+6. **Apply UI best practices** → Ensure clarity, consistency, accessibility
+7. **Test tokens** → Verify all colors, spacing, and typography match the design system
+8. **Review for redundancy** → Remove any duplicate UI elements or controls
+9. **Map to Figma** → Use Code Connect to link component back to Figma (if applicable)
 
 ### Design System Philosophy
 
